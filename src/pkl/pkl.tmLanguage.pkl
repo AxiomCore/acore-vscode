@@ -16,6 +16,8 @@
 
 amends "../../textmate-bundle/pkl/pkl.tmLanguage.pkl"
 
+scopeName = "source.acore"
+
 output {
   renderer = new JsonRenderer {}
 }

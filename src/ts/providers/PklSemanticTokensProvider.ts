@@ -144,7 +144,7 @@ export class PklSemanticTokensProvider
 export async function newPklSemanticTokenProvider(): Promise<PklSemanticTokensProvider> {
   await Parser.init();
   const parser = new Parser();
-  const wasmBytes = await fs.readFile(path.join(__dirname, "../pkl.wasm"));
+  const wasmBytes = await fs.readFile(path.join(__dirname, "../acore.wasm"));
   const language = await Language.load(wasmBytes);
   parser.setLanguage(language);
   return new PklSemanticTokensProvider(parser);

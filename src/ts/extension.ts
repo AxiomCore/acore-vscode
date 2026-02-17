@@ -1,17 +1,5 @@
 /*
  * Copyright © 2024-2025 Apple Inc. and the Pkl project authors. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  */
 
 import * as vscode from "vscode";
@@ -93,8 +81,9 @@ async function createLanguageClient() {
   const serverOptions = await getServerOptions();
   const clientOptions: LanguageClientOptions = {
     documentSelector: [
-      { scheme: "file", language: "pkl" },
-      { scheme: "pkl-lsp", language: "pkl" },
+      { scheme: "file", language: "acore" },
+      { scheme: "pkl-lsp", language: "acore" }, // internal virtual files
+      { scheme: "axiom-python", language: "acore" }, // <-- AXIOM SUPPORT
     ],
     markdown: {
       isTrusted: true,
@@ -107,7 +96,7 @@ async function createLanguageClient() {
       },
     },
   };
-  return new LanguageClient("Pkl", "Pkl Language Server", serverOptions, clientOptions);
+  return new LanguageClient("Acore", "Acore Language Server", serverOptions, clientOptions);
 }
 
 async function nofityReloadNeeded() {
@@ -122,7 +111,6 @@ async function nofityReloadNeeded() {
 
 async function startLspServer() {
   if (languageClientRef.client?.needsStop() === true) {
-    // Calling `LanguageClient#stop()` causes all sorts of havoc for some reason, so we'll just ask users to reload the window.
     nofityReloadNeeded();
     return;
   }
@@ -138,17 +126,26 @@ async function registerSubscriptions(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.languages.registerDocumentSemanticTokensProvider(
-      { language: "pkl" },
+      { language: "acore" },
       semanticTokensProvider,
       semanticTokensProvider.legend,
     ),
-    vscode.languages.registerFoldingRangeProvider({ language: "pkl" }, semanticTokensProvider),
+    vscode.languages.registerFoldingRangeProvider({ language: "acore" }, semanticTokensProvider),
   );
 
+  // Provider for virtual content (logs, internal representations)
   context.subscriptions.push(
     vscode.workspace.registerTextDocumentContentProvider(
       "pkl-lsp",
       new PklTextDocumentContentProvider(languageClientRef),
+    ),
+  );
+
+  // Provider for Axiom Bridge content (the generated Pkl from Python)
+  context.subscriptions.push(
+    vscode.workspace.registerTextDocumentContentProvider(
+        "axiom-python",
+        new PklTextDocumentContentProvider(languageClientRef),
     ),
   );
 
@@ -207,7 +204,6 @@ const showRestartMessage = (configPath: string) => async () => {
       `The configuration value "${configPath}" has changed, and the VSCode window needs to be reloaded to take effect.`,
       "Reload Window",
     );
-    // Calling `LanguageClient#stop()` causes all sorts of havoc for some reason.
     if (response === "Reload Window") {
       vscode.commands.executeCommand(COMMAND_RELOAD_WORKSPACE_WINDOW);
       return;

@@ -1,51 +1,41 @@
 {
-  "name": "pkl-vscode",
-  "displayName": "Pkl",
-  "description": "Syntax highlighting, bracket matching, and code folding for Pkl files.",
+  "name": "acore-vscode",
+  "displayName": "Acore",
+  "description": "Syntax highlighting, introspection, and Axiom Bridge support for Acore files.",
   "icon": "img/icon.png",
-  "version": "0.21.0",
-  "publisher": "Pkl",
+  "version": "0.1.0",
+  "publisher": "Axiom",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/apple/pkl-vscode"
+    "url": "https://github.com/your-org/acore-vscode"
   },
-  "homepage": "https://github.com/apple/pkl-vscode",
-  "bugs": {
-    "url": "https://github.com/apple/pkl-vscode/issues"
-  },
-  "//": "don't publish to npm",
-  "private": true,
   "engines": {
     "vscode": "^1.59.0"
-  },
-  "devEngines": {
-    "packageManager": {
-      "name": "npm"
-    }
   },
   "categories": [
     "Programming Languages"
   ],
   "main": "./out/extension.js",
   "activationEvents": [
-    "onLanguage:pkl"
+    "onLanguage:acore"
   ],
   "contributes": {
     "languages": [
       {
-        "id": "pkl",
+        "id": "acore",
         "extensions": [
-          ".pkl",
-          ".pcf"
+          ".acore",
+          ".pkl"
         ],
         "filenames": [
+          "AcoreProject",
           "PklProject"
         ],
         "aliases": [
-          "Pkl"
+          "Acore"
         ],
-        "firstLine": "^#!/.*\\bpkl\\b",
+        "firstLine": "^#!/.*\\bacore\\b",
         "configuration": "./language-configuration.json",
         "icon": {
           "light": "./img/icon.svg",
@@ -55,9 +45,9 @@
     ],
     "grammars": [
       {
-        "language": "pkl",
-        "scopeName": "source.pkl",
-        "path": "out/pkl.tmLanguage.json"
+        "language": "acore",
+        "scopeName": "source.acore",
+        "path": "out/acore.tmLanguage.json"
       }
     ],
     "semanticTokenTypes": [
@@ -82,97 +72,98 @@
       {
         "scopes": {
           "keyword": [
-            "keyword.pkl"
+            "keyword.acore"
           ],
           "punctuation": [
-            "punctuation.pkl"
+            "punctuation.acore"
           ],
           "punctuationBracket": [
-            "punctuation.bracket.pkl"
+            "punctuation.bracket.acore"
           ],
           "control": [
-            "keyword.control.pkl"
+            "keyword.control.acore"
           ],
           "error": [
-            "invalid.illegal.pkl"
+            "invalid.illegal.acore"
           ],
           "stringEscape": [
-            "constant.character.escape.pkl"
+            "constant.character.escape.acore"
           ],
           "constant": [
-            "constant.character.language.pkl"
+            "constant.character.language.acore"
           ]
         }
       }
     ],
     "configuration": {
-      "title": "Pkl",
+      "title": "Acore",
       "properties": {
-        "pkl.lsp.path": {
+        "acore.lsp.path": {
           "type": "string",
           "default": null,
           "description": "Path to pkl-lsp jar file. This is an internal developer option."
         },
-        "pkl.lsp.debug.port": {
+        "acore.lsp.debug.port": {
           "type": "integer",
           "default": 5005,
-          "description": "Debug port to launch pkl-lsp. This is an internal developer option."
+          "description": "Debug port to launch acore-lsp."
         },
-        "pkl.lsp.socket.port": {
+        "acore.lsp.socket.port": {
           "type": "number",
-          "description": "Port of the LSP socket to talk to. Setting this takes precedence over `pkl.lsp.path`. This is an internal developer option."
+          "description": "Port of the LSP socket to talk to."
         },
-        "pkl.lsp.socket.host": {
+        "acore.lsp.socket.host": {
           "type": "string",
-          "description": "Host of the LSP socket to talk to. If unset or empty, defaults to localhost. This is an internal developer option."
+          "description": "Host of the LSP socket to talk to. Defaults to localhost."
         },
-        "pkl.cli.path": {
-          "type": "string",
-          "default": null,
-          "description": "Path to pkl executable",
-          "scope": "Pkl"
-        },
-        "pkl.lsp.java.path": {
+        "acore.cli.path": {
           "type": "string",
           "default": null,
-          "description": "Path to java executable used to start pkl-lsp."
+          "description": "Path to acore/pkl executable",
+          "scope": "Acore"
         },
-        "pkl.formatter.grammarVersion": {
+        "acore.lsp.java.path": {
+          "type": "string",
+          "default": null,
+          "description": "Path to java executable used to start acore-lsp."
+        },
+        "acore.formatter.grammarVersion": {
           "type": "string",
           "default": "2",
-          "description": "Grammar version to use when formatting Pkl code",
-          "enum": ["1", "2"],
-          "enumDescriptions": [
-            "Pkl 0.25 - 0.29",
-            "Pkl 0.30+"
-          ]
+          "description": "Grammar version to use when formatting code",
+          "enum": ["1", "2"]
         },
-        "pkl.projects.excludedDirectories": {
+        "acore.projects.excludedDirectories": {
           "type": "array",
           "items": {
             "type": "string"
           },
           "default": [],
-          "description": "List of directories to exclude when discovering Pkl projects. Supports glob patterns (* and **)."
+          "description": "List of directories to exclude when discovering Acore/Pkl projects."
         }
       }
     },
     "commands": [
       {
-        "category": "Pkl",
+        "category": "Acore",
         "title": "Sync Projects",
-        "command": "pkl.syncProjects"
+        "command": "acore.syncProjects"
+      },
+      {
+        "category": "Acore",
+        "title": "Download Package",
+        "command": "acore.downloadPackage"
       }
     ]
   },
-  "scripts": {
+   "scripts": {
     "clean": "shx rm -rf out/",
-    "build": "npm run clean && npm run build:pkl && npm run build:code && npm run build:tree-sitter && npm run build:download-lsp",
-    "build:local": "npm run clean && npm run build:pkl && npm run build:code && npm run build:tree-sitter:local && npm run build:download-lsp",
-    "build:pkl": "pkl eval -m . src/pkl/index.pkl",
-    "build:download-lsp": "ts-node scripts/download-lsp-jar.ts",
-    "build:tree-sitter": "shx mkdir -p out/grammar/ && cd node_modules/@apple/tree-sitter-pkl && tree-sitter build --wasm && shx mv tree-sitter-pkl.wasm ../../../out/pkl.wasm",
-    "build:tree-sitter:local": "shx mkdir -p out/grammar/ && cd node_modules/@apple/tree-sitter-pkl && tree-sitter build --wasm && cd - && mv node_modules/@apple/tree-sitter-pkl/tree-sitter-pkl.wasm out/pkl.wasm",
+    "build": "npm run clean && npm run build:pkl && npm run build:code && npm run build:tree-sitter && npm run build:copy-local-lsp",
+    "build:pkl": "/Users/yashmakan/AxiomCore/acore/pkl-cli/build/executable/jpkl eval -m . src/pkl/index.pkl",
+    "build:copy-local-lsp": "shx cp /Users/yashmakan/AxiomCore/acore-lsp/build/libs/pkl-lsp-0.5.3-SNAPSHOT.jar ./out/acore-lsp.jar",
+    "build:local": "npm run clean && npm run build:pkl && npm run build:code && npm run build:tree-sitter:local && npm run build:copy-local-lsp",
+    "build:tree-sitter": "shx mkdir -p out/grammar/ && cd node_modules/@apple/tree-sitter-pkl && tree-sitter build --wasm && shx mv tree-sitter-pkl.wasm ../../../out/acore.wasm",
+    "build:tree-sitter:local": "shx mkdir -p out/grammar/ && cd node_modules/@apple/tree-sitter-pkl && tree-sitter build --wasm && cd - && mv node_modules/@apple/tree-sitter-pkl/tree-sitter-pkl.wasm out/acore.wasm",
     "build:code": "shx mkdir -p out/ && shx cp node_modules/web-tree-sitter/tree-sitter.wasm out/ && tsc",
     "lint:fix": "prettier -w src/",
     "lint": "prettier -c src/",
@@ -180,11 +171,9 @@
     "test": "npm run test:grammar",
     "test:grammar": "sh scripts/check-grammar.sh",
     "prepackage": "npm run build",
-    "package": "shx mkdir -p .dist/vscode && vsce package --out .dist/vscode/pkl-vscode-$npm_package_version.vsix",
-    "package-only": "shx mkdir -p .dist/vscode && vsce package --out .dist/vscode/pkl-vscode-$npm_package_version.vsix",
+    "package": "shx mkdir -p .dist/vscode && vsce package --out .dist/vscode/acore-vscode-$npm_package_version.vsix",
     "preinstallextension": "npm run package",
-    "installextension": "code --install-extension .dist/vscode/pkl-vscode-$npm_package_version.vsix",
-    "clone-grammar": "git submodule update --init --recursive"
+    "installextension": "code --install-extension .dist/vscode/acore-vscode-$npm_package_version.vsix"
   },
   "dependencies": {
     "vscode-languageclient": "^9.0.1",
@@ -202,13 +191,5 @@
     "typescript": "^5.9.3",
     "@vscode/vsce": "^3.6.2",
     "@vscode/test-electron": "^2.5.2"
-  },
-  "peerDependencies": {
-    "tree-sitter": "^0.25.0"
-  },
-  "peerDependenciesMeta": {
-    "tree-sitter": {
-      "optional": true
-    }
   }
 }

@@ -59,18 +59,22 @@ export const getLspDistribution = (): Promise<LspDistribution> => {
 };
 
 export const bundledDistribution: LspDistribution = {
-  path: path.join(__dirname, "pkl-lsp.jar"),
+  // CHANGE: Point to the renamed JAR
+  path: path.join(__dirname, "acore-lsp.jar"),
   version: Semver.parse(BUNDLED_LSP_VERSION)!!,
 };
 
 const getLspVersion = async (jarPath: string): Promise<Semver | undefined> => {
   const javaDistribution = await getJavaDistribution();
   const { stdout } = await execFile(javaDistribution.path, ["-jar", jarPath, "--version"]);
+  // CHANGE: Match "acore-lsp" in version output if you changed the CLI name in Kotlin,
+  // otherwise keep matching the version pattern generically.
+  // Assuming the LSP outputs: "acore-lsp version 0.1.0"
   const stdoutParts = stdout.replace(/\r?\n$/, "").split(" version ");
   const versionStr = stdoutParts[stdoutParts.length - 1];
   if (versionStr === undefined) {
     logger.log(
-      `Got malformed version output from jar file at ${jarPath}: ${stdout}. Expected "pkl-lsp version <version>"`,
+      `Got malformed version output from jar file at ${jarPath}: ${stdout}. Expected "acore-lsp version <version>"`,
     );
     return;
   }
@@ -82,7 +86,7 @@ const getLspVersion = async (jarPath: string): Promise<Semver | undefined> => {
   return semver;
 };
 
-const CTA_CONFIGURE_LSP_PATH = "Configure path to pkl-lsp";
+const CTA_CONFIGURE_LSP_PATH = "Configure path to acore-lsp";
 
 const tellInvalidConfiguredLspPath = async () => {
   const response = await vscode.window.showWarningMessage(
@@ -104,15 +108,15 @@ const handleConfiguredLspDistribution = async (lspPath: string) => {
     // permit a higher version if it exists, but warn users about it.
     if (!version.isCompatibleWith(bundledDistribution.version)) {
       vscode.window.showWarningMessage(
-        `This version of pkl-vscode is not compatible with pkl-lsp version ${version}. Features are not guaranteed to work.`,
+        `This version of acore-vscode is not compatible with acore-lsp version ${version}. Features are not guaranteed to work.`,
       );
     } else if (version.isLessThan(bundledDistribution.version)) {
       vscode.window.showWarningMessage(
-        `The configured pkl-lsp distribution version (${version}) is lower than the bundled version (${BUNDLED_LSP_VERSION}). Features are not guaranteed to work.`,
+        `The configured acore-lsp distribution version (${version}) is lower than the bundled version (${BUNDLED_LSP_VERSION}). Features are not guaranteed to work.`,
       );
     }
     const distro = { path: lspPath, version };
-    logger.log(`Using pkl-lsp.jar from configured ${CONFIG_LSP_PATH}`);
+    logger.log(`Using acore-lsp.jar from configured ${CONFIG_LSP_PATH}`);
     currentLspDistribution = distro;
     emitter.fire(distro);
   } catch (err) {
@@ -133,7 +137,7 @@ const getDownloadedDistribution = async (): Promise<LspDistribution | undefined>
       )
       .sort((a, b) => -a.compareTo(b));
     for (const version of versions) {
-      const lspJar = path.join(LSP_DISTRIBUTIONS_DIR, version.toString(), `pkl-lsp-${version}.jar`);
+      const lspJar = path.join(LSP_DISTRIBUTIONS_DIR, version.toString(), `acore-lsp-${version}.jar`);
       if (await isRegularFile(lspJar)) {
         return { path: lspJar, version };
       }
@@ -163,10 +167,10 @@ vscode.workspace.onDidChangeConfiguration(
   }
   let distro = await getDownloadedDistribution();
   if (distro !== undefined && distro.version.isGreaterThan(bundledDistribution.version)) {
-    logger.log(`Using downloaded pkl-lsp.jar at ${distro.path}`);
+    logger.log(`Using downloaded acore-lsp.jar at ${distro.path}`);
   } else {
     distro = bundledDistribution;
-    logger.log(`Using built-in pkl-lsp.jar`);
+    logger.log(`Using built-in acore-lsp.jar`);
   }
   currentLspDistribution = distro;
   emitter.fire(distro);
